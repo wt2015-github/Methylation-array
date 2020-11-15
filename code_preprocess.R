@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-#Ting, 2020.5
 
 # devtools::install_github("metamaden/methyPre")
 library(methyPre)
@@ -8,10 +7,9 @@ library(ggplot2)
 
 ######
 # load batch 1 raw idat files
-rg1 <- read.metharray.exp(base='X:/fast/grady_w/GLADR/Runs/EPIC/InfiniumEPIC_Grady_HalbergPolyps_2019-07-08/ImageData/', recursive=T, force=T, verbose = T)
-dim(rg1) #1051815 40
+rg1 <- read.metharray.exp(base='path-to-ImageData-IDATs-1', recursive=T, force=T, verbose = T)
 # add phenotype pData
-pheno <- read.csv('Data_HalbergPolyp_Merged_EPIC1_5-27-2020.csv', header = T, check.names = F)
+pheno <- read.csv('phenotyoe1.csv', header = T, check.names = F)
 rownames(pheno) <- pheno$`EPIC Array ID`
 pheno <- pheno[colnames(rg1),]
 pData(rg1) <- cbind(pData(rg1), pheno)
@@ -20,10 +18,9 @@ pData(rg1)$Batch <- 'Batch1'
 
 ######
 # load batch 2 raw idat files
-rg2 <- read.metharray.exp(base='X:/fast/grady_w/GLADR/Runs/EPIC/InfiniumEPIC_Grady_HalbergPolyps2_2020-04-29/ImageData/', recursive=T, force=T, verbose = T)
-dim(rg2) #1051815 48
+rg2 <- read.metharray.exp(base='path-to-ImageData-IDATs-2', recursive=T, force=T, verbose = T)
 # add phenotype pData
-pheno <- read.csv('Data_HalbergPolyp_Merged_EPIC2_5-27-2020.csv', header = T, check.names = F)
+pheno <- read.csv('phenotyoe2.csv', header = T, check.names = F)
 rownames(pheno) <- pheno$`EPIC Array ID`
 pheno <- pheno[colnames(rg2),]
 pData(rg2) <- cbind(pData(rg2), pheno)
@@ -35,7 +32,7 @@ pData(rg2)$Batch <- 'Batch2'
 # load('data_rgSet_batch1.rda')
 # load('data_rgSet_batch2.rda')
 identical(colnames(pData(rg1)),colnames(pData(rg2))) #T
-rg.all <- combineArrays(rg1, rg2, outType = 'IlluminaHumanMethylationEPIC')
+rg.all <- combineArrays(rg1, rg2, outType = 'IlluminaHumanMethylationEPIC') #or HM450
 dim(rg.all) #1051815 88
 
 # PCA of snp probes
@@ -68,8 +65,7 @@ controlStripPlot(rg.all, controls="BISULFITE CONVERSION II")
 # Illumina and SWAN normalization
 datIlmn <- preprocessIllumina(rg.all)
 msetSWAN <- preprocessSWAN(rg.all, mSet = datIlmn)
-# msetSWAN <- preprocessSWAN(rg.all, mSet = mset)
-dim(msetSWAN) #866091 88
+dim(msetSWAN) #
 
 detP <- detectionP(rg.all)
 msetSWAN <- msetSWAN[rownames(detP),]
@@ -79,11 +75,11 @@ identical(rownames(msetSWAN), rownames(detP))
 identical(colnames(msetSWAN), colnames(detP))
 detPcutoff <- 0.01
 detPpercent <- 0.1
-max(colMeans(detP > detPcutoff)) #0.003392253
+max(colMeans(detP > detPcutoff)) #
 failedCpG <- rownames(detP)[rowMeans(detP > detPcutoff) > detPpercent]
-cat(paste("Remove",length(failedCpG), "undetected CpGs\n")) #2367
+cat(paste("Remove",length(failedCpG), "undetected CpGs\n")) #
 gfilt <- msetSWAN[setdiff(rownames(msetSWAN),failedCpG),]
-dim(gfilt) #863724 88
+dim(gfilt) #
 
 # map to genome
 gfilt <- mapToGenome(gfilt)
@@ -103,7 +99,7 @@ gfilt <- gfilt[!rownames(gfilt) %in% c(illumina.crxcg, pidsley.crxcg),]
 # if it's HM450 data
 # data(chen_crxcg)
 # gfilt.all <- gfilt.all[!rownames(gfilt.all) %in% chen.crxcg,]
-dim(gfilt) #772800 88
+dim(gfilt) #
 save(gfilt, file='data_gmSet_combined_filtered.rda')
 
 
