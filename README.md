@@ -1,1 +1,1 @@
-R codes for preprocessing Illumina Infinium 450K data (from IDAT files)
+R codes for preprocessing Illumina Infinium DNA Methylation array data (from IDAT files)
