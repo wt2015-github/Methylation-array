@@ -1,4 +1,6 @@
 #!/usr/bin/env Rscript
+# R code for preprocessing Illumina DNA methylation array data
+# Suppose there are 2 batches
 
 # devtools::install_github("metamaden/methyPre")
 library(methyPre)
